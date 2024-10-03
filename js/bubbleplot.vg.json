@@ -1,0 +1,137 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "width": 750,
+  "height": 400,
+  "title": "GDP and Life Expectancy Across Countries in 2023",
+  "data": {
+    "url": "data/world-data-2023-cleaned.csv"
+  },
+  "params": [
+    {
+      "name": "Continent_selection",
+      "bind": {
+        "input": "select",
+        "options": [
+          null,
+          "North America",
+          "South America",
+          "Europe",
+          "Africa",
+          "Asia",
+          "Oceania"
+        ],
+        "labels": [
+          "Show All",
+          "North America",
+          "South America",
+          "Europe",
+          "Africa",
+          "Asia",
+          "Oceania"
+        ],
+        "name": "Continent Selection: "
+      }
+    }
+  ],
+  "transform": [
+    { "filter": "datum.GDP > 0" },
+    { "filter": "datum.Life_expectancy > 0" },
+    {
+      "filter": "Continent_selection == null || datum.Continent == Continent_selection"
+    },
+    {
+      "calculate": "datum.GDP / 1000000", 
+      "as": "GDP_in_millions" 
+    }
+  ],
+  "mark": "circle",
+  "encoding": {
+    "x": {
+      "field": "GDP_in_millions", 
+      "type": "quantitative",
+      "title": "GDP (in millions)",
+      "axis": {"tickCount": 6},
+      "scale": {"type": "log", "domain": [100, 100000000]}  
+    },
+    "y": {
+      "field": "Life_expectancy",
+      "type": "quantitative",
+      "title": "Life Expectancy",
+      "scale": {"domain": [30, 90]}  
+    }
+  },
+  "layer": [
+    {
+      "mark": "circle",
+      "encoding": {
+        "size": {
+          "field": "Population",
+          "type": "quantitative",
+          "scale": {
+            "type": "threshold",
+            "domain": [1000000, 10000000, 50000000, 100000000, 500000000],
+            "range": [10, 50, 150, 200, 300, 400]
+          },
+          "legend": { "format": ".1s" }
+        },
+        "color": {
+          "field": "Continent",
+          "type": "nominal",
+          "scale": {
+            "domain": [
+              "North America",
+              "South America",
+              "Europe",
+              "Africa",
+              "Asia",
+              "Oceania"
+            ],
+            "range": [
+              "#e41a1c",
+              "#984ea3",
+              "#ff7f00",
+              "#a6cee3",
+              "#377eb8",
+              "#a65628"
+            ]
+          }
+        },
+        "opacity": { "value": 0.6 },
+        "tooltip": [
+          { "field": "Country", "type": "nominal" },
+          { "field": "GDP_in_millions", "type": "quantitative", "format": ",.0f" , "title": "GDP (in millions)" }, 
+          { "field": "Life_expectancy", "type": "quantitative", "format": "," , "title": "Life Expectancy" },
+          { "field": "Population", "type": "quantitative", "format": "," }
+        ]
+      }
+    },
+    {
+      "mark": {
+        "type": "text",
+        "align": "right",
+        "baseline": "middle",
+        "dx": -12,
+        "fontSize": 11.5,
+        "fontStyle": "italic"
+      },
+      "encoding": {
+        "text": { "field": "Country", "type": "nominal" },
+        "color": { "value": "black" },
+        "opacity": {
+          "condition": {
+            "test": "datum['Country'] == 'India' || datum['Country'] == 'Singapore' || datum['Country'] == 'Togo' || datum['Country'] == 'Iceland' || datum['Country'] == 'Nigeria' || datum['Country'] == 'Chad' || datum['Country'] == 'United States of America'",
+            "value": 1
+          },
+          "value": 0
+        },
+        "tooltip": [
+          { "field": "Country", "type": "nominal" },
+          { "field": "GDP_in_millions", "type": "quantitative", "format": ",.0f" , "title": "GDP (in millions)" }, 
+          { "field": "Life_expectancy", "type": "quantitative", "format": "," , "title": "Life Expectancy" },
+          { "field": "Population", "type": "quantitative", "format": "," }
+        ]
+      }
+    }
+  ]
+
+}
